@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">MagicCube</string>
+    <string name="hello">hello world</string>
+    <string name="game_start">开始游戏</string>
+    <string name="start">开始</string>
+    <string name="pause">暂停</string>
+    <string name="scramble">打乱</string>
+    <string name="reset">还原</string>
+    <string name="undo">撤销</string>
+</resources>

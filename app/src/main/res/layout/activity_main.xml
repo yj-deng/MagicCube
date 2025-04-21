@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#559EC8"
+    android:padding="16dp">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="32dp">
+
+        <!-- 魔方 -->
+
+    </FrameLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:id="@+id/btn_start"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_start"
+            android:background="@drawable/round_button"
+            android:elevation="4dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="@null"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/buttons_container"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:strokeColor="@color/border_color" />
+
+        <!-- 底部三个按钮容器 -->
+        <LinearLayout
+            android:id="@+id/buttons_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="32dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <ImageButton
+                android:id="@+id/btn_shake"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_margin="16dp"
+                android:src="@drawable/ic_shake"
+                android:background="@drawable/round_button"
+                android:elevation="4dp"
+                android:scaleType="centerCrop"
+                android:contentDescription="@null"
+                app:strokeColor="@color/border_color"
+                app:strokeWidth="1dp"/>
+
+            <ImageButton
+                android:id="@+id/btn_music"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_margin="16dp"
+                android:src="@drawable/ic_music_on"
+                android:background="@drawable/round_button"
+                android:elevation="4dp"
+                android:scaleType="centerCrop"
+                android:contentDescription="@null"
+                app:strokeColor="@color/border_color"
+                app:strokeWidth="1dp"/>
+
+            <ImageButton
+                android:id="@+id/btn_multiple"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_margin="16dp"
+                android:src="@drawable/ic_multiple"
+                android:background="@drawable/round_button"
+                android:elevation="4dp"
+                android:scaleType="centerCrop"
+                android:contentDescription="@null"
+                app:strokeColor="@color/border_color"
+                app:strokeWidth="1dp"/>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>
