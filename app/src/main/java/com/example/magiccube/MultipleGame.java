@@ -11,6 +11,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
@@ -110,7 +111,6 @@ public class MultipleGame extends AppCompatActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                // 注入标记：告知JS当前接口已就绪
                 String jsCode = "window.isMultipleMode = true;";
                 webView.evaluateJavascript(jsCode, null);
                 cubeWebSocket = new CubeWebSocket(MultipleGame.this,"123");
@@ -129,5 +129,18 @@ public class MultipleGame extends AppCompatActivity {
                 .setTitle("提示")
                 .setMessage(mes)
                 .show();
+    }
+
+    public void onWebSocketConnectionFailed(){
+        runOnUiThread(()->{
+            Toast.makeText(this,"网络连接失败，正在退出多人模式",Toast.LENGTH_LONG).show();
+        });
+    }
+
+    public void onWebSocketReconnectionSuccess(){
+        //同步魔方状态 SYN
+        runOnUiThread(()->{
+            Toast.makeText(this,"网络重连成功，正在同步魔方状态",Toast.LENGTH_LONG).show();
+        });
     }
 }

@@ -1,7 +1,9 @@
 package com.example.magiccube.utils;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.magiccube.MainGame;
 import com.example.magiccube.MultipleGame;
@@ -17,30 +19,16 @@ public class CubeWebSocket {
     private WebSocket webSocket;
     private final OkHttpClient client;
     private final MultipleGame multipleActivity;
-    private final MainGame singleActivity;
     private final String roomId;
-    private final String mode;
     private static final String WS_BASE_URL = "ws://10.0.2.2:8080/ws";
+    private boolean is_Connected;
+    private boolean is_exit=false;
+    private int retryCount = 0;
+    private int max_retry = 5;
 
     public CubeWebSocket(MultipleGame activity, String roomId) {
         this.multipleActivity = activity;
-        this.singleActivity = null;
         this.roomId = roomId;
-        this.mode = "multiple";
-
-        this.client = new OkHttpClient.Builder()
-                .pingInterval(30, TimeUnit.SECONDS)
-                .retryOnConnectionFailure(true)
-                .build();
-
-        connect();
-    }
-
-    public CubeWebSocket(MainGame activity) {
-        this.singleActivity = activity;
-        this.multipleActivity = null;
-        this.roomId = "0";
-        this.mode = "single";
 
         this.client = new OkHttpClient.Builder()
                 .pingInterval(30, TimeUnit.SECONDS)
@@ -51,20 +39,16 @@ public class CubeWebSocket {
     }
 
     private void connect() {
-        String wsUrl;
-
-        if ("multiple".equals(mode)) {
-            wsUrl = WS_BASE_URL + "?mode=multiple&roomId=" + roomId;
-        } else {
-            wsUrl = WS_BASE_URL + "?mode=single";
-        }
+        String wsUrl=WS_BASE_URL + "?roomId=" + roomId;
 
         Request request = new Request.Builder().url(wsUrl).build();
 
         webSocket = client.newWebSocket(request, new WebSocketListener() {
             @Override
             public void onOpen(WebSocket webSocket, Response response) {
-                Log.d("WebSocket", "Connected in mode: " + mode + (mode.equals("multiple") ? (" to room: " + roomId) : ""));
+                is_Connected=true;
+                is_exit=false;
+                Log.d("WebSocket", "Connected to room: " + roomId);
             }
 
             @Override
@@ -74,22 +58,27 @@ public class CubeWebSocket {
 
             @Override
             public void onClosed(WebSocket webSocket, int code, String reason) {
+                is_Connected=false;
                 Log.d("WebSocket", "Connection closed");
-                reconnect();
+                if(!is_exit)
+                    reconnect();
             }
 
             @Override
             public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-                Log.e("WebSocket", "Connection failed", t);
-                reconnect();
+                is_Connected=false;
+                if(!is_exit){
+                    if(multipleActivity!=null)
+                        multipleActivity.onWebSocketConnectionFailed();
+                    Log.e("WebSocket", "Connection failed", t);
+                    reconnect();
+                }
             }
         });
     }
 
     private void handleMessage(String message) {
-        if (mode.equals("single") && singleActivity != null) {
-            handleMessageForActivity(singleActivity, message);
-        } else if (mode.equals("multiple") && multipleActivity != null) {
+        if (multipleActivity != null) {
             handleMessageForActivity(multipleActivity, message);
         }
         else
@@ -117,7 +106,7 @@ public class CubeWebSocket {
     }
 
     public void sendMove(String axis, int value, int angle) {
-        if (webSocket != null) {
+        if (webSocket != null&&is_Connected) {
             try {
 
                 JSONObject moveData = new JSONObject();
@@ -136,16 +125,23 @@ public class CubeWebSocket {
     }
 
     private void reconnect() {
-        Handler handler = new Handler();
+        if(retryCount>max_retry)
+        {
+            Log.e("WebSocket", "Max retry count reached. Stop reconnecting.");
+            return;
+        }
+        retryCount++;
+        Handler handler = new Handler(Looper.getMainLooper());
 
-        if (mode.equals("single") && singleActivity != null) {
-            singleActivity.runOnUiThread(() -> handler.postDelayed(this::connect, 10000));
-        } else if (mode.equals("multiple") && multipleActivity != null) {
-            multipleActivity.runOnUiThread(() -> handler.postDelayed(this::connect, 10000));
+        Runnable reconnectRunnable = this::connect;
+
+        if (multipleActivity!=null) {
+            handler.postDelayed(reconnectRunnable, 10000);
         }
     }
 
     public void close() {
+        is_exit=true;
         if (webSocket != null) {
             webSocket.close(1000, "Normal closure");
         }

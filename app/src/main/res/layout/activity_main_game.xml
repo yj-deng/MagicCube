@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/maingame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -40,30 +41,60 @@
 
     <Button
         android:id="@+id/btn_scramble"
+        android:text="@string/scramble"
         android:layout_width="80dp"
         android:layout_height="40dp"
+        android:layout_margin="16dp"
         android:background="@drawable/round_button"
+        android:elevation="4dp"
         android:scaleType="centerCrop"
-        android:text="@string/scramble">
+        android:contentDescription="@null"
+        app:strokeColor="@color/border_color"
+        app:strokeWidth="1dp">
     </Button>
 
 
-    <Button
-        android:id="@+id/btn_start"
-        android:layout_width="80dp"
-        android:layout_height="40dp"
-        android:background="@drawable/round_button"
-        android:scaleType="centerCrop"
-        android:text="@string/start">
-    </Button>
+<!--    <Button-->
+<!--        android:id="@+id/btn_start"-->
+<!--        android:enabled="false"-->
+<!--        android:text="@string/pause"-->
+<!--        android:layout_width="80dp"-->
+<!--        android:layout_height="40dp"-->
+<!--        android:layout_margin="16dp"-->
+<!--        android:background="@drawable/round_button"-->
+<!--        android:elevation="4dp"-->
+<!--        android:scaleType="centerCrop"-->
+<!--        android:contentDescription="@null"-->
+<!--        app:strokeColor="@color/border_color"-->
+<!--        app:strokeWidth="1dp">-->
+<!--    </Button>-->
+
+        <Button
+            android:id="@+id/btn_restore"
+            android:text="@string/restore"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
+            android:layout_margin="16dp"
+            android:background="@drawable/round_button"
+            android:elevation="4dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="@null"
+            app:strokeColor="@color/border_color"
+            app:strokeWidth="1dp">
+        </Button>
 
         <Button
             android:id="@+id/btn_undo"
+            android:text="@string/undo"
             android:layout_width="80dp"
             android:layout_height="40dp"
+            android:layout_margin="16dp"
             android:background="@drawable/round_button"
+            android:elevation="4dp"
             android:scaleType="centerCrop"
-            android:text="@string/undo">
+            android:contentDescription="@null"
+            app:strokeColor="@color/border_color"
+            app:strokeWidth="1dp">
         </Button>
 
     </LinearLayout>

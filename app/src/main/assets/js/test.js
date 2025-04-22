@@ -9,17 +9,17 @@
     const materials = colors.map(c => new THREE.MeshPhongMaterial({ color: c }));
     const cubes = [];
 
-    for (let x = -1; x <= 1; x++) {
-        for (let y = -1; y <= 1; y++) {
-            for (let z = -1; z <= 1; z++) {
+    for (let x = -2; x <= 2; x++) {
+        for (let y = -2; y <= 2; y++) {
+            for (let z = -2; z <= 2; z++) {
                 const geom = new THREE.BoxGeometry(0.95, 0.95, 0.95);
                 const cube = new THREE.Mesh(geom, [
-                    x === 1 ? materials[0] : materials[6],
-                    x === -1 ? materials[1] : materials[6],
-                    y === 1 ? materials[2] : materials[6],
-                    y === -1 ? materials[3] : materials[6],
-                    z === 1 ? materials[4] : materials[6],
-                    z === -1 ? materials[5] : materials[6]
+                    x === 2 ? materials[0] : materials[6],
+                    x === -2 ? materials[1] : materials[6],
+                    y === 2 ? materials[2] : materials[6],
+                    y === -2 ? materials[3] : materials[6],
+                    z === 2 ? materials[4] : materials[6],
+                    z === -2 ? materials[5] : materials[6]
                 ]);
                 cube.position.set(x, y, z);
                 scene.add(cube);
@@ -28,7 +28,7 @@
         }
     }
 
-    camera.position.set(3,3,3);
+    camera.position.set(5,5,5);
     camera.lookAt(0, 0, 0);
     scene.add(new THREE.DirectionalLight(0xffffff, 1).position.set(5, 10, 10));
     scene.add(new THREE.AmbientLight(0xffffff, 0.4));
@@ -53,30 +53,6 @@
     let isRestore = false;
     let restoreMove = [];//所有操作栈，用于还原
     let enableVibrate = true;//默认支持震动
-    const axisMap = {
-        'R': ['x', 1, 1],
-        'L': ['x', -1, 1],
-        'U': ['y', 1, 1],
-        'D': ['y', -1, 1],
-        'F': ['z', 1, 1],
-        'B': ['z', -1, 1],
-
-        // 逆时针
-        'R`': ['x', 1, -1],
-        'L`': ['x', -1, -1],
-        'U`': ['y', 1, -1],
-        'D`': ['y', -1, -1],
-        'F`': ['z', 1, -1],
-        'B`': ['z', -1, -1],
-
-        // 180度
-        'R2': ['x', 1, 2],
-        'L2': ['x', -1, 2],
-        'U2': ['y', 1, 2],
-        'D2': ['y', -1, 2],
-        'F2': ['z', 1, 2],
-        'B2': ['z', -1, 2]
-    };
 
     function getLayer(axis, value) {
         return cubes.filter(c => Math.round(c.position[axis]) === value);
@@ -290,7 +266,6 @@ function scrambleCube(str) {
             return;
         }
     const move = scrambleQueue.shift();
-    const [axis, value, angleType] = axisMap[move];
 
     const angle = angleType === 2 ? Math.PI : angleType * Math.PI/2;
 
@@ -298,7 +273,7 @@ function scrambleCube(str) {
     targetAngle = angle;
     rotateAngle = 0;
     rotating = true;
-    rotateLayer = getLayer(axis, value);
+    rotateLayer = getLayer(move.axis, move.value);
     rotationGroup.clear();
     rotationGroup.rotation.set(0, 0, 0);
     rotateLayer.forEach(cube => {

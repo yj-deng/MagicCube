@@ -10,19 +10,20 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.magiccube.utils.Cube;
 import com.example.magiccube.utils.CubeWebSocket;
 import com.example.magiccube.utils.MyTimer;
 
 public class MainGame extends AppCompatActivity {
-    private CubeWebSocket cubeWebSocket;
     private WebView webview;
     private TextView timerTextView;
-    private Button btn_scramble,btn_palse,btn_undo;
+    private Button btn_scramble,btn_palse,btn_undo,btn_restore;
     private MyTimer myTimer;
 
     @Override
@@ -37,7 +38,6 @@ public class MainGame extends AppCompatActivity {
     }
 
     void InitWebView(){
-        cubeWebSocket = new CubeWebSocket(this);
         webview = findViewById(R.id.webview);
         webview.getSettings().setJavaScriptEnabled(true);
 
@@ -61,18 +61,28 @@ public class MainGame extends AppCompatActivity {
         btn_scramble = findViewById(R.id.btn_scramble);
         btn_scramble.setOnClickListener(v -> {
             myTimer.reset();
-            webview.evaluateJavascript("scrambleCube('RLR\\'L');", null);
+            String scrambleCode = Cube.generateScramble(20);
+            String jsCode = String.format("scrambleCube('%s')", scrambleCode);
+            System.out.println(scrambleCode);
+            webview.evaluateJavascript(jsCode,null);
         });
 
-        btn_palse = findViewById(R.id.btn_start);
-        btn_palse.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(myTimer.isRunning()){
-                    myTimer.pause();
-                }
-            }
+        btn_restore = findViewById(R.id.btn_restore);
+        btn_restore.setOnClickListener(v -> {
+            webview.evaluateJavascript("restore()",null);
         });
+
+//        btn_palse = findViewById(R.id.btn_start);
+//        btn_palse.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if(myTimer.isRunning()){
+//                    String jsCode = "window.timerFlat = false;";
+//                    webview.evaluateJavascript(jsCode, null);
+//                    myTimer.pause();
+//                }
+//            }
+//        });
 
         btn_undo = findViewById(R.id.btn_undo);
         btn_undo.setOnClickListener(v -> {
@@ -93,13 +103,14 @@ public class MainGame extends AppCompatActivity {
     private class WebAppInterface {
         @JavascriptInterface
         public void sendMove(String axis,int value,int angle) {
-            cubeWebSocket.sendMove(axis,value,angle);
+
         }
         @JavascriptInterface
         public void onCubeSolved() {
             runOnUiThread(() -> {
-                myTimer.pause();
-                showMyDialog("魔方已还原");
+                long temptime=myTimer.getElapsedMillis();
+                Toast.makeText(MainGame.this,"还原耗时"+temptime/1000+"."+temptime%1000+"秒",Toast.LENGTH_LONG).show();
+                myTimer.reset();
             });
         }
 
@@ -123,7 +134,6 @@ public class MainGame extends AppCompatActivity {
     }
     @Override
     protected void onDestroy() {
-        cubeWebSocket.close();
         super.onDestroy();
     }
 }

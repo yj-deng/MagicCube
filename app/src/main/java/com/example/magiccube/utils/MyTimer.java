@@ -87,4 +87,11 @@ public class MyTimer {
     public boolean isRunning() {
         return isRunning;
     }
+    public long getElapsedMillis() {
+        if (isRunning) {
+            return System.currentTimeMillis() - startTime;
+        } else {
+            return pausedTime;
+        }
+    }
 }
