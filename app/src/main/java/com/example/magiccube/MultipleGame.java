@@ -1,29 +1,21 @@
 package com.example.magiccube;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
-import android.view.View;
 import android.webkit.JavascriptInterface;
-import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.example.magiccube.utils.CubeWebSocket;
 import com.example.magiccube.utils.MyTimer;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MultipleGame extends AppCompatActivity {
@@ -46,6 +38,7 @@ public class MultipleGame extends AppCompatActivity {
         try {
             String escapedScramble = scramble.replace("'", "\\'");
             String jsCode = String.format("scrambleCube('%s')", escapedScramble);
+            System.out.println(jsCode);
             webView.evaluateJavascript(jsCode,null);
         } catch (Exception e) {
             Log.e("Cube", "Failed to initialize cube", e);
@@ -106,7 +99,7 @@ public class MultipleGame extends AppCompatActivity {
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
         webView.addJavascriptInterface(new WebAppInterface(), "Android");
-        webView.loadUrl("file:///android_asset/cube.html");
+        webView.loadUrl("file:///android_asset/cube.html?level=3");
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -118,7 +111,6 @@ public class MultipleGame extends AppCompatActivity {
         });
 
     }
-
     void InitTimer(){
         timerTextView = findViewById(R.id.timerMultipleTextView);
         myTimer=new MyTimer();

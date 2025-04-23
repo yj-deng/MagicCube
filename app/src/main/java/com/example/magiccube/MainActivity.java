@@ -4,25 +4,27 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.ContactsContract;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.magiccube.utils.MyPreferences;
+
 public class MainActivity extends AppCompatActivity {
-
-
-    private int currentIconIndex = 0;
 
     private WebView webview;
     private BackgroundMusic musicService;
     private boolean isBound = false;
     private boolean isMusicOn = false;
     private boolean isVibrateOn = true;
+    private int cubeLevel;
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -40,59 +42,90 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //音乐服务控制
-        InitBackgroundMusic();
+        InitUserSetting();
         InitWebView();
         InitButtons();
     }
-    void InitBackgroundMusic(){
+
+    private void InitUserSetting() {
+        SharedPreferences sharedPreferences = getSharedPreferences("userSetting",MODE_PRIVATE);
+        isMusicOn=sharedPreferences.getBoolean("musicStatus",false);
+        isVibrateOn=sharedPreferences.getBoolean("vibrateOn",false);
+        cubeLevel = sharedPreferences.getInt("cubeLevel",5);
+    }
+
+    void InitButtons(){
+
+        ImageButton btn_left = findViewById(R.id.btn_left_arrow);
+
+        btn_left.setOnClickListener(v->{
+            cubeLevel = 3;
+            String url = "file:///android_asset/cubePreview.html?level=" + cubeLevel + "&t=" + System.currentTimeMillis();
+            webview.loadUrl(url);
+            SharedPreferences sharedPreferences = getSharedPreferences("userSetting",MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putInt("cubeLevel",cubeLevel);
+            editor.commit();
+        });
+
+        ImageButton btn_right = findViewById(R.id.btn_right_arrow);
+        btn_right.setOnClickListener(v->{
+            cubeLevel = 5;
+            String url = "file:///android_asset/cubePreview.html?level=" + cubeLevel + "&t=" + System.currentTimeMillis();
+            webview.loadUrl(url);
+            SharedPreferences sharedPreferences = getSharedPreferences("userSetting",MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putInt("cubeLevel",cubeLevel);
+            editor.commit();
+        });
+
         ImageButton btnPlay = findViewById(R.id.btn_music);
-        Intent intent = new Intent(this, BackgroundMusic.class);
-        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        Intent intent1 = new Intent(this, BackgroundMusic.class);
+        bindService(intent1, connection, Context.BIND_AUTO_CREATE);
         btnPlay.setOnClickListener(v -> {
             if (isBound) {
+                SharedPreferences sharedPreferences=getSharedPreferences("userSetting",MODE_PRIVATE);
+                isMusicOn=sharedPreferences.getBoolean("musicStatus",false);
                 if(isMusicOn)
                     btnPlay.setImageResource(R.drawable.ic_music_off);
                 else
                     btnPlay.setImageResource(R.drawable.ic_music_on);
-                isMusicOn=!isMusicOn;
+                //保存用户设置
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean("musicStatus",!isMusicOn);
+                editor.commit();
+                isMusicOn = !isMusicOn;
                 musicService.togglePlayback();
             }
         });
-    }
 
-    void InitButtons(){
         ImageButton btn = findViewById(R.id.btn_shake);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(isVibrateOn)
-                    btn.setImageResource(R.drawable.ic_vibrate_on);
-                else
+        btn.setOnClickListener(v->{
+            SharedPreferences sharedPreferences=getSharedPreferences("userSetting",MODE_PRIVATE);
+            isVibrateOn=sharedPreferences.getBoolean("vibrateStatus",false);
+            if(isVibrateOn)
                     btn.setImageResource(R.drawable.ic_vibrate_off);
+                else
+                    btn.setImageResource(R.drawable.ic_vibrate_on);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean("vibrateStatus",!isVibrateOn);
+                editor.commit();
                 isVibrateOn=!isVibrateOn;
                 String jsCode = "window.enableVibrate = "+isVibrateOn;
                 webview.evaluateJavascript(jsCode, null);
-            }
-        });
+            });
 
         ImageButton btn2 = findViewById(R.id.btn_start);
-        btn2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, MainGame.class);
-                startActivity(intent);
-            }
+        btn2.setOnClickListener(v->{
+                Intent intent2 = new Intent(MainActivity.this, MainGame.class);
+                startActivity(intent2);
+
         });
 
         ImageButton btn1 = findViewById(R.id.btn_multiple);
-        btn1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, MultipleGame.class);
-                startActivity(intent);
-            }
+        btn1.setOnClickListener(v-> {
+                Intent intent3 = new Intent(MainActivity.this, MultipleGame.class);
+                startActivity(intent3);
         });
 
     }
@@ -106,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         webview.getSettings().setAllowContentAccess(true);
         webview.setVerticalScrollBarEnabled(false);
         webview.setHorizontalScrollBarEnabled(false);
-        webview.loadUrl("file:///android_asset/cubePreview.html");
+        webview.loadUrl("file:///android_asset/cubePreview.html?level="+cubeLevel);
     }
 
     @Override

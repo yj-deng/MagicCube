@@ -1,13 +1,11 @@
 package com.example.magiccube;
 
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
-import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,10 +15,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.magiccube.utils.Cube;
-import com.example.magiccube.utils.CubeWebSocket;
 import com.example.magiccube.utils.MyTimer;
 
 public class MainGame extends AppCompatActivity {
+    private int cubeLevel=3;
     private WebView webview;
     private TextView timerTextView;
     private Button btn_scramble,btn_palse,btn_undo,btn_restore;
@@ -32,9 +30,15 @@ public class MainGame extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main_game);
 
+        InitUserSetting();
         InitWebView();
         InitTimer();
         InitButtons();
+    }
+
+    void InitUserSetting(){
+        SharedPreferences sharedPreferences = getSharedPreferences("userSetting",MODE_PRIVATE);
+        cubeLevel = sharedPreferences.getInt("cubeLevel",3);
     }
 
     void InitWebView(){
@@ -47,7 +51,7 @@ public class MainGame extends AppCompatActivity {
         webview.getSettings().setAllowContentAccess(true);
         webview.setVerticalScrollBarEnabled(false);
         webview.setHorizontalScrollBarEnabled(false);
-        webview.loadUrl("file:///android_asset/cube.html");
+        webview.loadUrl("file:///android_asset/cube.html?level="+cubeLevel);
     }
 
     void InitTimer(){
@@ -61,9 +65,8 @@ public class MainGame extends AppCompatActivity {
         btn_scramble = findViewById(R.id.btn_scramble);
         btn_scramble.setOnClickListener(v -> {
             myTimer.reset();
-            String scrambleCode = Cube.generateScramble(20);
+            String scrambleCode = Cube.generateScramble(5,cubeLevel);
             String jsCode = String.format("scrambleCube('%s')", scrambleCode);
-            System.out.println(scrambleCode);
             webview.evaluateJavascript(jsCode,null);
         });
 
