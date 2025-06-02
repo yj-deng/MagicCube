@@ -11,8 +11,8 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="400dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginBottom="32dp">
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp">
 
         <!-- 魔方 -->
         <WebView
@@ -82,7 +82,7 @@
 
             <ImageButton
                 android:id="@+id/btn_shake"
-                android:layout_width="80dp"
+                android:layout_width="60dp"
                 android:layout_height="80dp"
                 android:layout_margin="16dp"
                 android:src="@drawable/ic_vibrate_on"
@@ -95,7 +95,7 @@
 
             <ImageButton
                 android:id="@+id/btn_music"
-                android:layout_width="80dp"
+                android:layout_width="60dp"
                 android:layout_height="80dp"
                 android:layout_margin="16dp"
                 android:src="@drawable/ic_music_off"
@@ -107,8 +107,21 @@
                 app:strokeWidth="1dp"/>
 
             <ImageButton
+                android:id="@+id/btn_info"
+                android:layout_width="60dp"
+                android:layout_height="80dp"
+                android:layout_margin="16dp"
+                android:src="@drawable/ic_user"
+                android:background="@drawable/round_button"
+                android:elevation="4dp"
+                android:scaleType="centerCrop"
+                android:contentDescription="@null"
+                app:strokeColor="@color/border_color"
+                app:strokeWidth="1dp"/>
+
+            <ImageButton
                 android:id="@+id/btn_multiple"
-                android:layout_width="80dp"
+                android:layout_width="60dp"
                 android:layout_height="80dp"
                 android:layout_margin="16dp"
                 android:src="@drawable/ic_multiple"

@@ -4,7 +4,7 @@
     android:id="@+id/maingame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#2A0944"
+    android:background="#559EC8"
     android:orientation="vertical"
     android:padding="16dp">
 

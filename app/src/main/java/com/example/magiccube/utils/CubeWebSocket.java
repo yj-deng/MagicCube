@@ -20,35 +20,36 @@ public class CubeWebSocket {
     private final OkHttpClient client;
     private final MultipleGame multipleActivity;
     private final String roomId;
+    private final int userId;
     private static final String WS_BASE_URL = "ws://10.0.2.2:8080/ws";
     private boolean is_Connected;
     private boolean is_exit=false;
     private int retryCount = 0;
-    private int max_retry = 5;
+    private String token;
 
-    public CubeWebSocket(MultipleGame activity, String roomId) {
+    public CubeWebSocket(MultipleGame activity, String roomId,int userId,String token) {
         this.multipleActivity = activity;
         this.roomId = roomId;
-
+        this.userId=userId;
         this.client = new OkHttpClient.Builder()
                 .pingInterval(30, TimeUnit.SECONDS)
                 .retryOnConnectionFailure(true)
                 .build();
-
+        this.token=token;
         connect();
     }
 
     private void connect() {
-        String wsUrl=WS_BASE_URL + "?roomId=" + roomId;
+        String wsUrl = WS_BASE_URL + "?roomId=" + roomId + "&userId=" + userId;
 
-        Request request = new Request.Builder().url(wsUrl).build();
+        Request request = new Request.Builder().url(wsUrl).addHeader("Authorization", token).build();
 
         webSocket = client.newWebSocket(request, new WebSocketListener() {
             @Override
             public void onOpen(WebSocket webSocket, Response response) {
-                is_Connected=true;
-                is_exit=false;
-                Log.d("WebSocket", "Connected to room: " + roomId);
+                is_Connected = true;
+                is_exit = false;
+                retryCount = 0;
             }
 
             @Override
@@ -58,17 +59,15 @@ public class CubeWebSocket {
 
             @Override
             public void onClosed(WebSocket webSocket, int code, String reason) {
-                is_Connected=false;
-                Log.d("WebSocket", "Connection closed");
-                if(!is_exit)
-                    reconnect();
+                is_Connected = false;
+                if (!is_exit) reconnect();
             }
 
             @Override
             public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-                is_Connected=false;
-                if(!is_exit){
-                    if(multipleActivity!=null)
+                is_Connected = false;
+                if (!is_exit) {
+                    if (multipleActivity != null)
                         multipleActivity.onWebSocketConnectionFailed();
                     Log.e("WebSocket", "Connection failed", t);
                     reconnect();
@@ -76,6 +75,7 @@ public class CubeWebSocket {
             }
         });
     }
+
 
     private void handleMessage(String message) {
         if (multipleActivity != null) {
@@ -102,34 +102,25 @@ public class CubeWebSocket {
         } else if (message.startsWith("UPDATE:")) {
             String move = message.substring(7);
             activity.runOnUiThread(() -> activity.applyRemoteMove(move));
+        }else if(message.startsWith("CHAT:"))
+        {
+            String chatJson = message.substring(5);
+            activity.runOnUiThread(() -> activity.receiveChatMessage(chatJson));
         }
     }
 
     public void sendMove(String axis, int value, int angle) {
         if (webSocket != null&&is_Connected) {
-            try {
-
-                JSONObject moveData = new JSONObject();
-                moveData.put("axis", axis);
-                moveData.put("value", value);
-                moveData.put("angle", angle);
-
-                String message = "UPDATE:" + moveData.toString();
-
-                webSocket.send(message);
-                Log.d("WebSocket", "Sent move: " + message);
-            } catch (JSONException e) {
-                Log.e("WebSocket", "Failed to create move message", e);
-            }
+            String data=axis+value+angle;
+            String message = "UPDATE:" + data;
+            webSocket.send(message);
         }
     }
 
     private void reconnect() {
-        if(retryCount>max_retry)
-        {
-            Log.e("WebSocket", "Max retry count reached. Stop reconnecting.");
+        int max_retry = 5;
+        if(retryCount> max_retry)
             return;
-        }
         retryCount++;
         Handler handler = new Handler(Looper.getMainLooper());
 
@@ -147,4 +138,18 @@ public class CubeWebSocket {
         }
         client.dispatcher().executorService().shutdown();
     }
+
+    public void sendChatMessage(String sender, String message) {
+        if (webSocket != null && is_Connected) {
+            try {
+                JSONObject chatData = new JSONObject();
+                chatData.put("sender", sender);
+                chatData.put("message", message);
+
+                String chatMessage = "CHAT:" + chatData.toString();
+                webSocket.send(chatMessage);
+            } catch (JSONException ignored) {}
+        }
+    }
+
 }

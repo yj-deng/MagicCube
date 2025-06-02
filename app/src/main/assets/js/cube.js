@@ -173,13 +173,11 @@ renderer.domElement.addEventListener('touchend', () => {
 });
 
 function determineAxisWithCamera(touchStart, touchEnd, faceNormal) {
-    // 归一化设备坐标
     const startNDC = new THREE.Vector3(
         (touchStart.x / window.innerWidth) * 2 - 1,
         -(touchStart.y / window.innerHeight) * 2 + 1,
         0.5
     );
-
     const endNDC = new THREE.Vector3(
         (touchEnd.x / window.innerWidth) * 2 - 1,
         -(touchEnd.y / window.innerHeight) * 2 + 1,
@@ -238,8 +236,7 @@ function animate() {
             rotateAngle = 0;
             targetAngle = 0;
 
-            console.log(rotateAxis);
-            console.log(rotateLayer[0]);
+//            console.log(rotateAxis);
 
             if (!isRestore) {
                 restoreMove.push({
@@ -333,8 +330,6 @@ function executeScrambleStep() {
 }
 
 function applyRemoteMove(axis, value, angle) {
-
-    console.log("syn",axis,value,angle);
     isSyn = true;
     rotateAxis = axis;
     targetAngle = angle === 1 ? Math.PI / 2 : -Math.PI / 2;
